@@ -19,10 +19,18 @@ pipeline {
     }
     stage('Data-base') {
       agent {
-        docker { image 'mysql:8.0' } // Corrected typo and updated MySQL version
+        docker { image 'mysql:8.0' }
+      }
+      environment {
+        MYSQL_ROOT_PASSWORD = 'rootpassword' // Set MySQL root password
       }
       steps {
-        sh 'SELECT * FROM XYZ' // Using the correct command for MySQL
+        sh '''
+          echo "CREATE DATABASE test_db;" | mysql -u root -p$MYSQL_ROOT_PASSWORD
+          echo "USE test_db; CREATE TABLE XYZ (id INT);" | mysql -u root -p$MYSQL_ROOT_PASSWORD
+          echo "USE test_db; INSERT INTO XYZ VALUES (1);" | mysql -u root -p$MYSQL_ROOT_PASSWORD
+          echo "USE test_db; SELECT * FROM XYZ;" | mysql -u root -p$MYSQL_ROOT_PASSWORD
+        '''
       }
     }
   }
