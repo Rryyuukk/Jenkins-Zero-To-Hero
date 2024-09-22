@@ -19,10 +19,13 @@ pipeline {
     }
     stage('Data-base') {
       agent {
-        docker { image 'mysql:8.0' }
+        docker { 
+          image 'mysql:8.0' 
+          args '-e MYSQL_ROOT_PASSWORD=rootpassword -e MYSQL_DATABASE=test_db -e MYSQL_USER=testuser -e MYSQL_PASSWORD=testpassword'
+        }
       }
       environment {
-        MYSQL_ROOT_PASSWORD = 'rootpassword'  // Securely passing the root password as env variable
+        MYSQL_ROOT_PASSWORD = 'rootpassword'
       }
       steps {
         script {
@@ -37,16 +40,14 @@ pipeline {
             done
           '''
 
-          // Once MySQL is ready, run the SQL commands
+          // Once MySQL is ready, run SQL commands
           sh '''
-            echo "CREATE DATABASE test_db;" | mysql -u root -p$MYSQL_ROOT_PASSWORD
-            echo "USE test_db; CREATE TABLE XYZ (id INT);" | mysql -u root -p$MYSQL_ROOT_PASSWORD
-            echo "USE test_db; INSERT INTO XYZ VALUES (1);" | mysql -u root -p$MYSQL_ROOT_PASSWORD
-            echo "USE test_db; SELECT * FROM XYZ;" | mysql -u root -p$MYSQL_ROOT_PASSWORD
+            echo "CREATE TABLE IF NOT EXISTS test_db.XYZ (id INT);" | mysql -u root -p$MYSQL_ROOT_PASSWORD test_db
+            echo "INSERT INTO XYZ VALUES (1);" | mysql -u root -p$MYSQL_ROOT_PASSWORD test_db
+            echo "SELECT * FROM XYZ;" | mysql -u root -p$MYSQL_ROOT_PASSWORD test_db
           '''
         }
       }
     }
   }
 }
-
