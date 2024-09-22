@@ -22,7 +22,7 @@ pipeline {
         docker { image 'mysql:8.0' } // Corrected typo and updated MySQL version
       }
       steps {
-        sh 'mysql --version' // Using the correct command for MySQL
+        sh 'SELECT * FROM XYZ' // Using the correct command for MySQL
       }
     }
   }
